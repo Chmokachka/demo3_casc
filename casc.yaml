@@ -1,0 +1,106 @@
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - string:
+          description: "telegramChatId"
+          id: "telegramChatId"
+          scope: GLOBAL
+          secret: "{AQAAABAAAAAQcACJUPF6tdaG+OSjsDeNwFjhdb9YB8MtAC14nHLqvNI=}"
+      - string:
+          description: "telegramToken"
+          id: "telegramToken"
+          scope: GLOBAL
+          secret: "{AQAAABAAAAAwzTqf6nbdke4buDm1Y2Bowy9rPKdz3c2lRmSP1sy6hG4mRCrCcgZwWOkeoG9ynouJrUNwpetP/noxpPjS9Lse/g==}"
+      - string:
+          description: "home_sonarscaner"
+          id: "home_sonarscaner"
+          scope: GLOBAL
+          secret: "{AQAAABAAAAAwACs+LxSrrsqOev5r5WfTw0pAPhENxu/WcblVT5MZwctoeh+5EjF8toEHHac4QUrWMXHcssR/L+pnkunj55TBSQ==}"
+jenkins:
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: admin
+          password: admin
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+        - "Overall/Administer:authenticated"
+        - "Overall/Read:authenticated"
+  remotingSecurity:
+    enabled: true
+security:
+  queueItemAuthenticator:
+    authenticators:
+    - global:
+        strategy: triggeringUsersAuthorizationStrategy
+unclassified:
+  location:
+    url: http://localhost:8080/
+  telegramBotGlobalConfiguration:
+    approvalType: ALL
+    botName: "Home_Dp206"
+    botToken: "{AQAAABAAAAAwzTqf6nbdke4buDm1Y2Bowy9rPKdz3c2lRmSP1sy6hG4mRCrCcgZwWOkeoG9ynouJrUNwpetP/noxpPjS9Lse/g==}"
+    shouldLogToConsole: false
+  # sonarGlobalConfiguration:
+  #   buildWrapperEnabled: true
+  #   installations:
+  #   - credentialsId: "home_sonarscaner"
+  #     name: "sonarserver"
+  #     serverUrl: "http://localhost:9000"
+  #     triggers:
+  #       skipScmCause: false
+  #       skipUpstreamCause: false
+tool:
+  dockerTool:
+    installations:
+    - name: "docker-cli"
+      properties:
+      - installSource:
+          installers:
+          - fromDocker:
+              version: "latest"
+  git:
+    installations:
+    - home: "git"
+      name: "Default"
+  jdk:
+    installations:
+    - home: "/usr/lib/jvm/java-8-openjdk-amd64"
+      name: "Java 8"
+    - home: "/usr/lib/jvm/java-11-openjdk-amd64"
+      name: "Java 11"
+  maven:
+    installations:
+    - name: "Maven"
+      properties:
+      - installSource:
+          installers:
+          - maven:
+              id: "3.8.1"
+  mavenGlobalConfig:
+    globalSettingsProvider: "standard"
+    settingsProvider: "standard"
+jobs:
+- script: >
+        pipelineJob('Home') {
+          definition {
+            cpsScm {
+              scm {
+                git {
+                  remote {
+                    url('https://github.com/Chmokachka/Dp-206-DevOps-Home.git')
+                  }
+                  branch('*/jenkins')
+                }
+              }
+              lightweight()
+              scriptPath('jenkins/Jfile_ultimate')
+            }
+          }
+          triggers{
+              scm('H/2 * * * *')
+          }
+        }
